@@ -1,28 +1,35 @@
 #include <iostream>
 #include <vector>
 #include <queue>
-#include <utility> // for std::pair
+#include <utility>
 
 using namespace std;
 
-const int INF = 1e9; // Large value representing "infinity"
+// Large value representing "infinity"
+const int INF = 1e9;
 
-// Function to implement Dijkstra's algorithm
-void dijkstra(int start, vector<vector<pair<int, int>>>& adj, vector<int>& dist) {
+// Dijkstra's algorithm function that returns a vector of shortest distances
+vector<int> dijkstra(int start, const vector<vector<pair<int, int>>>& adj) {
+   // Initialize distances with "infinity"
+   vector<int> dist(adj.size(), INF);
+   // Priority queue to keep track of vertices to be explored
    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+   // Start vertex has distance 0
    pq.push({ 0, start });
    dist[start] = 0;
 
+   // Main loop for Dijkstra's algorithm
    while (!pq.empty()) {
+      // Get vertex with minimum distance
       int u = pq.top().second;
       int d = pq.top().first;
       pq.pop();
 
-      // Skip if a shorter path to this vertex has already been found
+      // Skip this vertex if a shorter path has already been found
       if (d > dist[u]) continue;
 
-      // Update distances to adjacent vertices
-      for (auto& edge : adj[u]) {
+      // Update distances of adjacent vertices
+      for (const auto& edge : adj[u]) {
          int v = edge.first, w = edge.second;
          if (dist[u] + w < dist[v]) {
             dist[v] = dist[u] + w;
@@ -30,40 +37,42 @@ void dijkstra(int start, vector<vector<pair<int, int>>>& adj, vector<int>& dist)
          }
       }
    }
+   // Return the final distances
+   return dist;
 }
 
 int main() {
-   int n, m; // n - number of vertices, m - number of edges
+   // Read number of vertices (n) and edges (m)
+   int n, m;
    cin >> n >> m;
-
    // Adjacency list to store the graph
    vector<vector<pair<int, int>>> adj(n);
-   vector<int> dist(n, INF); // Vector to store distances from the starting vertex to all others
 
-   // Reading edges of the graph
+   // Read edges and weights
    for (int i = 0; i < m; ++i) {
-      int u, v, w; // u - starting vertex, v - ending vertex, w - weight of the edge
+      int u, v, w;
       cin >> u >> v >> w;
-      adj[u].push_back({ v, w });
-      adj[v].push_back({ u, w }); // If the graph is undirected
+      adj[u].emplace_back(v, w);
+      adj[v].emplace_back(u, w);  // For an undirected graph
    }
 
-   int start; // Starting vertex
+   // Read start vertex
+   int start;
    cin >> start;
 
-   // Call the Dijkstra function
-   dijkstra(start, adj, dist);
+   // Get shortest distances from start vertex using Dijkstra's algorithm
+   vector<int> distances = dijkstra(start, adj);
 
-   // Output the shortest distances from the starting vertex to all others
-   for (int i = 0; i < n; ++i) {
-      if (dist[i] == INF) {
-         cout << "Infinity" << " ";
+   // Output the shortest distances
+   for (const auto& d : distances) {
+      if (d == INF) {
+         cout << "Infinity ";
       }
       else {
-         cout << dist[i] << " ";
+         cout << d << " ";
       }
    }
-   cout << endl;
+   cout << '\n';
 
    return 0;
 }
